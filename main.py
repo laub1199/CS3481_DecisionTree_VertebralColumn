@@ -4,6 +4,7 @@ from sklearn import preprocessing
 from sklearn.utils import shuffle
 import numpy as np
 import graphviz
+import matplotlib.pyplot as plt
 
 def decisionTree(max_depth):
     filepath = "./data/column_3C.dat"
@@ -12,11 +13,10 @@ def decisionTree(max_depth):
 
     df = pd.read_csv(filepath, sep=" ", header=None, names=names)
     df = df.sample(n=len(df), random_state=42).reset_index(drop=True)
-    print(df)
 
     numOfRow = len(df.index)
 
-    trainingIndex = numOfRow * 0.7
+    trainingIndex = numOfRow * 0.8
     trainingIndex = int(trainingIndex)
 
     training_data = df.iloc[0:trainingIndex, 0:6]
@@ -72,14 +72,23 @@ def decisionTree(max_depth):
             numberOfMathes += 1
 
     print(str(numberOfMathes) + "/" + str(numberOfTestcase))
-    return 1-(numberOfTrainingMathes/trainingIndex), 1-(numberOfMathes/numberOfTestcase)
+    return 1 - (numberOfTrainingMathes / trainingIndex), 1 - (numberOfMathes / numberOfTestcase)
+
 
 if __name__ == '__main__':
     train_list = []
     test_list = []
-    for max_depth in range (1, 13):
+    levels = []
+    for max_depth in range(1, 14):
         training_error, test_error = decisionTree(max_depth)
         train_list.append(training_error)
         test_list.append(test_error)
+        levels.append(max_depth)
     print(train_list)
     print(test_list)
+    plt.plot(levels, train_list, label="Training Error")
+    plt.plot(levels, test_list, label="Testing Error")
+    plt.title("Training and Test Error Rate")
+    plt.xlabel("Size of Tree")
+    plt.ylabel("Error Rate")
+    plt.show()
