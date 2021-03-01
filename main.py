@@ -2,11 +2,12 @@ import pandas as pd
 from sklearn import tree
 from sklearn import preprocessing
 from sklearn.utils import shuffle
+from sklearn.metrics import confusion_matrix
 import numpy as np
 import graphviz
 import matplotlib.pyplot as plt
 
-def decisionTree(max_depth):
+def decisionTree(max_depth, outputTree, target_depth):
     filepath = "./data/column_3C.dat"
     names = ["pelvic_incidence", "pelvic_tilt", "lumbar_lordosis_angle", "sacral_slope", "pelvic_radius",
              "degree_spondylolisthesis", "class"]
@@ -21,12 +22,20 @@ def decisionTree(max_depth):
 
     training_data = df.iloc[0:trainingIndex, 0:6]
     training_class = df.iloc[0:trainingIndex, -1]
+    training_class_index= []
+    for i in range(0, trainingIndex):
+        if training_class.iloc[i] == "DH":
+            training_class_index.append(0)
+        if training_class.iloc[i] == "NO":
+            training_class_index.append(1)
+        if training_class.iloc[i] == "SL":
+            training_class_index.append(2)
 
     le = preprocessing.LabelEncoder()
     label = le.fit_transform(training_class)
 
     # clf = tree.DecisionTreeClassifier(criterion='entropy')
-    clf = tree.DecisionTreeClassifier(max_depth=max_depth)
+    clf = tree.DecisionTreeClassifier(max_depth=max_depth, criterion='entropy')
     clf = clf.fit(training_data, label)
 
     dot_data = tree.export_graphviz(clf, out_file=None, filled=True,
@@ -36,9 +45,11 @@ def decisionTree(max_depth):
                                     special_characters=True)
 
     graph_training = graphviz.Source(dot_data)
-    # graph_training.render('Graph', view=True)
+    if (outputTree):
+        graph_training.render('Graph'+str(max_depth), view=True)
 
     clf_train = clf.predict(training_data)
+    print(confusion_matrix(training_class_index, clf_train))
 
     numberOfTrainingMathes = 0
 
@@ -55,8 +66,17 @@ def decisionTree(max_depth):
 
     testing_data = df.iloc[trainingIndex:numOfRow + 1, 0:6]
     testing_class = df.iloc[trainingIndex:numOfRow + 1, -1]
+    testing_class_index= []
+    for i in range(0, numOfRow - trainingIndex):
+        if testing_class.iloc[i] == "DH":
+            testing_class_index.append(0)
+        if testing_class.iloc[i] == "NO":
+            testing_class_index.append(1)
+        if testing_class.iloc[i] == "SL":
+            testing_class_index.append(2)
 
     clf_test = clf.predict(testing_data)
+    print(confusion_matrix(testing_class_index, clf_test))
 
     numberOfTestcase = numOfRow - trainingIndex
     numberOfMathes = 0
@@ -80,7 +100,7 @@ if __name__ == '__main__':
     test_list = []
     levels = []
     for max_depth in range(1, 14):
-        training_error, test_error = decisionTree(max_depth)
+        training_error, test_error = decisionTree(max_depth, False, 4)
         train_list.append(training_error)
         test_list.append(test_error)
         levels.append(max_depth)
