@@ -91,4 +91,5 @@ if __name__ == '__main__':
     plt.title("Training and Test Error Rate")
     plt.xlabel("Size of Tree")
     plt.ylabel("Error Rate")
+    plt.legend()
     plt.show()
