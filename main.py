@@ -49,7 +49,8 @@ def decisionTree(max_depth, outputTree, target_depth):
         graph_training.render('Graph'+str(max_depth), view=True)
 
     clf_train = clf.predict(training_data)
-    print(confusion_matrix(training_class_index, clf_train))
+    if (max_depth == target_depth):
+        print(confusion_matrix(training_class_index, clf_train))
 
     numberOfTrainingMathes = 0
 
@@ -76,7 +77,8 @@ def decisionTree(max_depth, outputTree, target_depth):
             testing_class_index.append(2)
 
     clf_test = clf.predict(testing_data)
-    print(confusion_matrix(testing_class_index, clf_test))
+    if (max_depth == target_depth):
+        print(confusion_matrix(testing_class_index, clf_test))
 
     numberOfTestcase = numOfRow - trainingIndex
     numberOfMathes = 0
