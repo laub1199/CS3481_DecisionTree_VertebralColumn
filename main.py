@@ -3,6 +3,7 @@ from sklearn import tree
 from sklearn import preprocessing
 from sklearn.utils import shuffle
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 import numpy as np
 import graphviz
 import matplotlib.pyplot as plt
@@ -50,6 +51,7 @@ def decisionTree(max_depth, outputTree, target_depth):
 
     clf_train = clf.predict(training_data)
     if (max_depth == target_depth):
+        print(1-accuracy_score(training_class_index, clf_train))
         print(confusion_matrix(training_class_index, clf_train))
 
     numberOfTrainingMathes = 0
@@ -78,6 +80,7 @@ def decisionTree(max_depth, outputTree, target_depth):
 
     clf_test = clf.predict(testing_data)
     if (max_depth == target_depth):
+        print(1-accuracy_score(testing_class_index, clf_test))
         print(confusion_matrix(testing_class_index, clf_test))
 
     numberOfTestcase = numOfRow - trainingIndex
