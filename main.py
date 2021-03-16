@@ -9,12 +9,19 @@ import graphviz
 import matplotlib.pyplot as plt
 
 def decisionTree(max_depth, outputTree, target_depth):
-    filepath = "./data/column_3C.dat"
+    # filepath = "./data/column_3C.dat"
+    filepath = "./out_noindex.csv"
     names = ["pelvic_incidence", "pelvic_tilt", "lumbar_lordosis_angle", "sacral_slope", "pelvic_radius",
              "degree_spondylolisthesis", "class"]
 
-    df = pd.read_csv(filepath, sep=" ", header=None, names=names)
-    df = df.sample(n=len(df), random_state=42).reset_index(drop=True)
+    df = pd.read_csv(filepath, sep=",", header=None, names=names)
+    # df = df.sample(n=len(df), random_state=42)
+    #
+    # compression_opts = dict(method='zip', archive_name='out.csv')
+    # df.to_csv('out_index.zip', index=True, compression=compression_opts)
+    # df.to_csv('out_noindex.zip', index=False, compression=compression_opts)
+
+    # df = df.reset_index(drop=True)
 
     numOfRow = len(df.index)
 
@@ -23,81 +30,48 @@ def decisionTree(max_depth, outputTree, target_depth):
 
     training_data = df.iloc[0:trainingIndex, 0:6]
     training_class = df.iloc[0:trainingIndex, -1]
-    training_class_index= []
-    for i in range(0, trainingIndex):
-        if training_class.iloc[i] == "DH":
-            training_class_index.append(0)
-        if training_class.iloc[i] == "NO":
-            training_class_index.append(1)
-        if training_class.iloc[i] == "SL":
-            training_class_index.append(2)
+    print(training_data)
 
     le = preprocessing.LabelEncoder()
     label = le.fit_transform(training_class)
 
     # clf = tree.DecisionTreeClassifier(criterion='entropy')
-    clf = tree.DecisionTreeClassifier(max_depth=max_depth, criterion='entropy')
+    clf = tree.DecisionTreeClassifier(max_depth=max_depth)
     clf = clf.fit(training_data, label)
 
-    dot_data = tree.export_graphviz(clf, out_file=None, filled=True,
-                                    feature_names=["pelvic_incidence", "pelvic_tilt", "lumbar_lordosis_angle",
-                                                   "sacral_slope", "pelvic_radius", "degree_spondylolisthesis"],
-                                    class_names=["Hernia", "Spondylolisthesis", "Normal"], rounded=True,
-                                    special_characters=True)
-
-    graph_training = graphviz.Source(dot_data)
     if (outputTree):
+        dot_data = tree.export_graphviz(clf, out_file=None, filled=True,
+                                        feature_names=["pelvic_incidence", "pelvic_tilt", "lumbar_lordosis_angle",
+                                                       "sacral_slope", "pelvic_radius", "degree_spondylolisthesis"],
+                                        class_names=["Hernia", "Normal", "Spondylolisthesis"], rounded=True,
+                                        special_characters=True)
+
+        graph_training = graphviz.Source(dot_data)
         graph_training.render('Graph'+str(max_depth), view=True)
 
     clf_train = clf.predict(training_data)
+    a = 1-accuracy_score(label, clf_train)
     if (max_depth == target_depth):
-        print(1-accuracy_score(training_class_index, clf_train))
-        print(confusion_matrix(training_class_index, clf_train))
+        print(1-accuracy_score(label, clf_train))
+        print(confusion_matrix(label, clf_train))
 
-    numberOfTrainingMathes = 0
-
-    for i in range(0, trainingIndex):
-        clfToName = ""
-        if (str(clf_train[i]) == "0"):
-            clfToName = "DH"
-        elif (str(clf_train[i]) == "1"):
-            clfToName = "NO"
-        else:
-            clfToName = "SL"
-        if (training_class.iloc[i] == clfToName):
-            numberOfTrainingMathes += 1
 
     testing_data = df.iloc[trainingIndex:numOfRow + 1, 0:6]
     testing_class = df.iloc[trainingIndex:numOfRow + 1, -1]
-    testing_class_index= []
-    for i in range(0, numOfRow - trainingIndex):
-        if testing_class.iloc[i] == "DH":
-            testing_class_index.append(0)
-        if testing_class.iloc[i] == "NO":
-            testing_class_index.append(1)
-        if testing_class.iloc[i] == "SL":
-            testing_class_index.append(2)
+
+    print(testing_data)
 
     clf_test = clf.predict(testing_data)
+    testing_label = le.fit_transform(testing_class)
+
     if (max_depth == target_depth):
-        print(1-accuracy_score(testing_class_index, clf_test))
-        print(confusion_matrix(testing_class_index, clf_test))
+        print(1-accuracy_score(testing_label, clf_test))
+        print(confusion_matrix(testing_label, clf_test))
 
-    numberOfTestcase = numOfRow - trainingIndex
-    numberOfMathes = 0
-    for i in range(0, numberOfTestcase):
-        clfToName = ""
-        if (str(clf_test[i]) == "0"):
-            clfToName = "DH"
-        elif (str(clf_test[i]) == "1"):
-            clfToName = "NO"
-        else:
-            clfToName = "SL"
-        if (testing_class.iloc[i] == clfToName):
-            numberOfMathes += 1
 
-    print(str(numberOfMathes) + "/" + str(numberOfTestcase))
-    return 1 - (numberOfTrainingMathes / trainingIndex), 1 - (numberOfMathes / numberOfTestcase)
+    b = 1-accuracy_score(testing_label, clf_test)
+
+    return a, b
 
 
 if __name__ == '__main__':
@@ -105,7 +79,7 @@ if __name__ == '__main__':
     test_list = []
     levels = []
     for max_depth in range(1, 14):
-        training_error, test_error = decisionTree(max_depth, False, 4)
+        training_error, test_error = decisionTree(max_depth, True, 4)
         train_list.append(training_error)
         test_list.append(test_error)
         levels.append(max_depth)
