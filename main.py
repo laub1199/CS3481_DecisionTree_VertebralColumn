@@ -16,6 +16,7 @@ def decisionTree(max_leaf_nodes, outputTree, target_depth,RS):
 
     df = pd.read_csv(filepath, sep=" ", header=None, names=names)
     df = df.sample(n=len(df), random_state=RS)
+    print(df)
     # df = df.sample(n=len(df))
     #
     # compression_opts = dict(method='zip', archive_name='out.csv')
@@ -36,7 +37,7 @@ def decisionTree(max_leaf_nodes, outputTree, target_depth,RS):
     label = le.fit_transform(training_class)
 
     # clf = tree.DecisionTreeClassifier(criterion='entropy')
-    clf = tree.DecisionTreeClassifier(max_leaf_nodes=max_leaf_nodes, criterion='entropy')
+    clf = tree.DecisionTreeClassifier(max_leaf_nodes=max_leaf_nodes)
     clf = clf.fit(training_data, label)
 
     if (outputTree):
@@ -75,12 +76,12 @@ def decisionTree(max_leaf_nodes, outputTree, target_depth,RS):
 
 
 if __name__ == '__main__':
-    for RS in range(5, 10):
+    for RS in range(6, 7):
         train_list = []
         test_list = []
         levels = []
         for max_depth in range(2, 25):
-            training_error, test_error = decisionTree(max_depth, True, 6, RS)
+            training_error, test_error = decisionTree(max_depth, True, 5, RS)
             train_list.append(training_error)
             test_list.append(test_error)
             levels.append(max_depth)
@@ -92,6 +93,6 @@ if __name__ == '__main__':
         plt.xlabel("Size of Tree")
         plt.ylabel("Error Rate")
         plt.legend()
-        plt.show(block=False)
-        plt.pause(1)
-        plt.close()
+        plt.show()
+        # plt.pause(1)
+        # plt.close()
