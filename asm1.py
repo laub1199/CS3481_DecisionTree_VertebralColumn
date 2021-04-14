@@ -16,7 +16,7 @@ def decisionTree(max_leaf_nodes, outputTree, target_depth,RS):
 
     df = pd.read_csv(filepath, sep=" ", header=None, names=names)
     df = df.sample(n=len(df), random_state=RS)
-    print(df)
+
     # df = df.sample(n=len(df))
     #
     # compression_opts = dict(method='zip', archive_name='out.csv')
@@ -76,12 +76,12 @@ def decisionTree(max_leaf_nodes, outputTree, target_depth,RS):
 
 
 if __name__ == '__main__':
-    for RS in range(6, 7):
+    for RS in range(7, 8):
         train_list = []
         test_list = []
         levels = []
         for max_depth in range(2, 25):
-            training_error, test_error = decisionTree(max_depth, True, 5, RS)
+            training_error, test_error = decisionTree(max_depth, True, 6, RS)
             train_list.append(training_error)
             test_list.append(test_error)
             levels.append(max_depth)
